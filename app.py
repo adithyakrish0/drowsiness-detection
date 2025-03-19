@@ -1,5 +1,8 @@
 import os
 import urllib.request
+import os  
+port = int(os.environ.get("PORT", 10000))  
+app.run(host="0.0.0.0", port=port)  
 
 MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 MODEL_FILE = "shape_predictor_68_face_landmarks.dat"
