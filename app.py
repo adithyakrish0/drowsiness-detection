@@ -1,23 +1,16 @@
 import os
 import urllib.request
+from flask import Flask, render_template, Response
+import cv2
+import dlib
+from scipy.spatial import distance
 
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Drowsiness Detection API is running!"
-
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+app = Flask(__name__, template_folder="templates")
 
 MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 MODEL_FILE = "shape_predictor_68_face_landmarks.dat"
 
-# Download if not exists
+# Download model if not exists
 if not os.path.exists(MODEL_FILE):
     print("Downloading shape predictor model...")
     urllib.request.urlretrieve(MODEL_URL, "model.bz2")
@@ -25,16 +18,9 @@ if not os.path.exists(MODEL_FILE):
     os.rename("model", MODEL_FILE)  # Rename after extraction
     print("Download complete!")
 
-from flask import Flask, render_template, Response
-import cv2
-import dlib
-from scipy.spatial import distance
-
-app = Flask(__name__)
-
 # Load face detector and landmark predictor
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+predictor = dlib.shape_predictor(MODEL_FILE)
 
 def eye_aspect_ratio(eye):
     A = distance.euclidean(eye[1], eye[5])
@@ -71,13 +57,14 @@ def detect_drowsiness():
 
     cap.release()
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html")  # Serves the frontend
 
-@app.route('/video_feed')
+@app.route("/video_feed")
 def video_feed():
-    return Response(detect_drowsiness(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(detect_drowsiness(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
