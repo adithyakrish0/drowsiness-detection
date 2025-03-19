@@ -2,3 +2,4 @@ Flask
 opencv-python
 scipy
 numpy
+cmake
