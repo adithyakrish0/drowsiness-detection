@@ -1,5 +1,5 @@
 Flask
 opencv-python
-dlib
+dlib==19.22.1
 scipy
 numpy
